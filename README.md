@@ -4,7 +4,23 @@ Claude Desktop için geliştirilmiş, Model Context Protocol (MCP) tabanlı yere
 
 ## Proje Hakkında
 
-Yazılım geliştirme süreçlerinde karşılaşılan spesifik hatalar, framework davranışları ve bulunan çözümler genellikle dağınık halde kalır. Bu proje, yerel bilgisayarınızda çalışan bir SQLite veritabanını MCP üzerinden doğrudan Claude Desktop'a bağlar. Claude, otonom olarak hata notlarınızı kaydedebilir ve geçmişteki çözümlerinizi size hatırlatabilir.
+Yazılım geliştirme süreçlerinde karşılaşılan spesifik hatalar, framework davranışları ve çözümler genellikle not defterlerinde veya mesajlaşma kanallarında dağınık halde kalır. Aynı sorunla aylar sonra tekrar karşılaşıldığında çözüm sürecini hatırlamak ciddi bir zaman kaybına yol açar.
+
+Bu proje, yerel bilgisayarınızda çalışan bir SQLite veritabanını Anthropic'in Model Context Protocol (MCP) standardı üzerinden doğrudan Claude Desktop'a bağlar. Claude, sohbet sırasında otonom olarak hata notlarınızı kaydedebilir ve geçmişte karşılaştığınız bir sorunu sorduğunuzda veritabanınızı tarayarak size eski çözümünüzü sunabilir.
+
+## Sistem Mimarisi ve Tasarım Kararları
+
+Proje, gereksiz karmaşıklıktan ve dış bağımlılıklardan kaçınılarak sade bir yapıda tasarlanmıştır:
+
+* **Sıfır Kurulumlu Veritabanı:** Arama işlemleri için karmaşık vektör veritabanları yerine SQLite'ın yerleşik FTS5 (Full-Text Search) eklentisi kullanılmıştır. Bu sayede sistem, ekstra bir altyapı gerektirmeden hızlı metin tabanlı aramalar yapabilir.
+* **Tamamen Yerel İletişim:** Sunucu, standart girdi/çıktı (stdio) üzerinden Claude ile haberleşir. Ağ yapılandırması veya port ayarı gerektirmez; verileriniz bilgisayarınızdan dışarı çıkmaz.
+* **Doğrudan Orkestrasyon:** LangChain gibi ek çerçeveler kullanılmamıştır. İstek analizi ve araç seçimi, Claude'un kendi otonom döngüsüne (ReAct) bırakılmıştır.
+
+## Sunulan Araçlar (MCP Tools)
+
+* `log_note(content, tags)`: SQLite veritabanına yeni bir hata veya çözüm kaydı ile ilgili etiketleri ekler.
+* `search_notes(query)`: FTS5 altyapısını kullanarak geçmiş notlarda metin tabanlı arama yapar ve en alakalı sonuçları Claude'a iletir.
+* `get_recent_notes(limit)`: Tarihe göre en son kaydedilen notları listeler.
 
 ## Kurulum ve Çalıştırma
 
@@ -16,14 +32,16 @@ Projeyi klonladıktan sonra temiz bir çalışma ortamı oluşturun:
 # Sanal ortam oluşturma
 python -m venv venv
 
-# Sanal ortamı aktif etme
-# Windows için (Eğer hata alırsanız Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process kullanın):
+# Sanal ortamı aktif etme (Windows)
 .\venv\Scripts\activate
 
-# Linux/macOS için:
+# Sanal ortamı aktif etme (Linux/macOS)
 source venv/bin/activate
 
+
 ```
+
+*Not: Windows üzerinde `.\venv\Scripts\activate` çalıştırırken "running scripts is disabled" hatası alırsanız, `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process` komutunu kullanarak yetki verebilirsiniz.*
 
 ### 2. Gereksinimleri Yükleyin
 
@@ -31,6 +49,7 @@ Projenin tek dış bağımlılığı resmi Anthropic MCP SDK'sıdır:
 
 ```bash
 pip install mcp
+
 
 ```
 
@@ -41,13 +60,17 @@ Veritabanı dosyasını ve tabloları oluşturmak için başlatma betiğini çal
 ```bash
 python db.py
 
+
 ```
 
-*Not: Dosyaların bulunduğu dizinde olduğunuzdan emin olun.*
+*Not: Bu komutu çalıştırmadan önce `db.py` dosyasının bulunduğunuz dizinde olduğunu doğrulayın.*
 
 ### 4. Claude Desktop Ayarları
 
-Claude'un bu sunucuyla iletişim kurabilmesi için `claude_desktop_config.json` dosyanıza (Windows için: `%APPDATA%\Claude\claude_desktop_config.json`) aşağıdaki yapılandırmayı ekleyin:
+Claude'un bu sunucuyla iletişim kurabilmesi için `claude_desktop_config.json` dosyanızı yapılandırın. Dosya mevcut değilse bu konumda oluşturun:
+
+* **Mac:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+* **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
@@ -59,23 +82,21 @@ Claude'un bu sunucuyla iletişim kurabilmesi için `claude_desktop_config.json` 
   }
 }
 
+
 ```
 
-*Önemli: `C:\\tam\\yol\\server.py` kısmını kendi bilgisayarınızdaki dosya yoluyla değiştirmeyi unutmayın.*
+*Önemli: `C:\\tam\\yol\\server.py` kısmını kendi bilgisayarınızdaki dosya yolu ile güncelleyin. Konfigürasyondan sonra Claude Desktop'ı tamamen kapatıp yeniden başlatın.*
 
----
+## ⚠️ Gelişmiş Sorun Giderme
 
-## 💡 Kurulumda Karşılaşılabilecek Sorunlar
-
-* **PowerShell Script Çalıştırma Hatası:** `.\venv\Scripts\activate` çalıştırırken "running scripts is disabled" hatası alırsanız, terminalinize şunu yazın: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process`
-* **Dosya Bulunamadı Hatası:** `python db.py` komutunu çalıştırmadan önce `ls` (veya `dir`) komutuyla `db.py` ve `server.py` dosyalarının bulunduğunuz dizinde listelendiğinden emin olun.
-* **Claude Bağlantısı:** Yapılandırmadan sonra Claude Desktop'ı mutlaka **tamamen kapatıp yeniden açın.** Başarılı bağlantıda Claude arayüzünde "my-dev-logger" sunucusunun aktif olduğunu göreceksiniz.
-
----
+* **Sunucu Başlatılamıyor (Kırmızı İkon):** Claude Desktop, `python` komutunu sistem yolunda bulamıyor olabilir. `claude_desktop_config.json` içerisindeki `"command": "python"` satırını, bilgisayarınızdaki tam Python yoluyla (örn: `"command": "C:\\Users\\Kullanici\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"`) değiştirmeyi deneyin.
+* **JSON Yapısal Hataları:** Konfigürasyon dosyasında eksik parantez veya fazladan virgül bulunması Claude'un dosyayı tamamen yok saymasına neden olur. JSON formatınızı kontrol ettiğinizden emin olun.
+* **Python Sürüm Uyumluluğu:** MCP SDK'sının kararlı çalışması için Python 3.10 veya daha yeni bir sürüm kullanmanız önerilir.
+* **Erişim Kısıtlamaları:** Kurumsal cihazlarda veya kısıtlı profillerde, Claude Desktop'ın `%APPDATA%` dizinine erişim yetkisi olduğünden emin olun.
 
 ## Kullanım Örneği
 
-Konfigürasyonu tamamladıktan sonra:
+Konfigürasyonu tamamladıktan sonra sohbet penceresinden asistanla iletişime geçebilirsiniz:
 
-* **Not Ekleme:** "Şunu not al: PostgreSQL 5432 port çakışması hatasını docker-compose içinde portu 5433:5432 yaparak çözdüm. Etiketler: docker, postgres"
+* **Not Ekleme:** "Şunu not al: PostgreSQL 5432 port çakışması hatasını, docker-compose.yml içindeki port eşleştirmesini 5433:5432 yaparak çözdüm. Etiketler: docker, postgres"
 * **Not Arama:** "Geçen ay aldığım Postgres port problemini nasıl çözmüştüm, veritabanımdan kontrol eder misin?"
