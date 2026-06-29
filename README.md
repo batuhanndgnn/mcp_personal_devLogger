@@ -1,7 +1,3 @@
-
-### Güncellenmiş `README.md`
-
-```markdown
 # MCP Personal Dev Logger
 
 Claude Desktop için geliştirilmiş, Model Context Protocol (MCP) tabanlı yerel bir geliştirici günlüğü ve hata takip sunucusu.
@@ -13,6 +9,7 @@ Yazılım geliştirme süreçlerinde karşılaşılan spesifik hatalar, framewor
 ## Kurulum ve Çalıştırma
 
 ### 1. Hazırlık ve Sanal Ortam
+
 Projeyi klonladıktan sonra temiz bir çalışma ortamı oluşturun:
 
 ```bash
@@ -22,6 +19,7 @@ python -m venv venv
 # Sanal ortamı aktif etme
 # Windows için (Eğer hata alırsanız Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process kullanın):
 .\venv\Scripts\activate
+
 # Linux/macOS için:
 source venv/bin/activate
 
@@ -81,5 +79,3 @@ Konfigürasyonu tamamladıktan sonra:
 
 * **Not Ekleme:** "Şunu not al: PostgreSQL 5432 port çakışması hatasını docker-compose içinde portu 5433:5432 yaparak çözdüm. Etiketler: docker, postgres"
 * **Not Arama:** "Geçen ay aldığım Postgres port problemini nasıl çözmüştüm, veritabanımdan kontrol eder misin?"
-
-```
