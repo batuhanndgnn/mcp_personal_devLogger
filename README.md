@@ -38,7 +38,6 @@ python -m venv venv
 # Sanal ortamı aktif etme (Linux/macOS)
 source venv/bin/activate
 
-
 ```
 
 *Not: Windows üzerinde `.\venv\Scripts\activate` çalıştırırken "running scripts is disabled" hatası alırsanız, `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process` komutunu kullanarak yetki verebilirsiniz.*
@@ -50,7 +49,6 @@ Projenin tek dış bağımlılığı resmi Anthropic MCP SDK'sıdır:
 ```bash
 pip install mcp
 
-
 ```
 
 ### 3. Veritabanını Hazırlayın
@@ -60,17 +58,19 @@ Veritabanı dosyasını ve tabloları oluşturmak için başlatma betiğini çal
 ```bash
 python db.py
 
-
 ```
 
 *Not: Bu komutu çalıştırmadan önce `db.py` dosyasının bulunduğunuz dizinde olduğunu doğrulayın.*
 
 ### 4. Claude Desktop Ayarları
 
-Claude'un bu sunucuyla iletişim kurabilmesi için `claude_desktop_config.json` dosyanızı yapılandırın. Dosya mevcut değilse bu konumda oluşturun:
+Claude'un bu sunucuyla iletişim kurabilmesi için `claude_desktop_config.json` dosyanızı yapılandırın:
 
-* **Mac:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-* **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+1. **Dosyayı Açın:** Claude Desktop uygulamasını açın.
+2. **Ayarlar:** Menü çubuğundan `File` > `Settings` (Mac üzerinde `Claude` > `Settings`) yolunu izleyin.
+3. **Developer:** `Developer` sekmesine tıklayın.
+4. **Edit Config:** `Edit Config` butonuna basarak `claude_desktop_config.json` dosyasını açın.
+5. **Düzenleyin:** Dosya içeriğine aşağıdakini ekleyin (eğer dosya mevcut değilse bu konumda oluşturun: Windows için `%APPDATA%\Claude\claude_desktop_config.json`, Mac için `~/Library/Application Support/Claude/claude_desktop_config.json`):
 
 ```json
 {
@@ -82,7 +82,6 @@ Claude'un bu sunucuyla iletişim kurabilmesi için `claude_desktop_config.json` 
   }
 }
 
-
 ```
 
 *Önemli: `C:\\tam\\yol\\server.py` kısmını kendi bilgisayarınızdaki dosya yolu ile güncelleyin. Konfigürasyondan sonra Claude Desktop'ı tamamen kapatıp yeniden başlatın.*
@@ -92,7 +91,7 @@ Claude'un bu sunucuyla iletişim kurabilmesi için `claude_desktop_config.json` 
 * **Sunucu Başlatılamıyor (Kırmızı İkon):** Claude Desktop, `python` komutunu sistem yolunda bulamıyor olabilir. `claude_desktop_config.json` içerisindeki `"command": "python"` satırını, bilgisayarınızdaki tam Python yoluyla (örn: `"command": "C:\\Users\\Kullanici\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"`) değiştirmeyi deneyin.
 * **JSON Yapısal Hataları:** Konfigürasyon dosyasında eksik parantez veya fazladan virgül bulunması Claude'un dosyayı tamamen yok saymasına neden olur. JSON formatınızı kontrol ettiğinizden emin olun.
 * **Python Sürüm Uyumluluğu:** MCP SDK'sının kararlı çalışması için Python 3.10 veya daha yeni bir sürüm kullanmanız önerilir.
-* **Erişim Kısıtlamaları:** Kurumsal cihazlarda veya kısıtlı profillerde, Claude Desktop'ın `%APPDATA%` dizinine erişim yetkisi olduğünden emin olun.
+* **Erişim Kısıtlamaları:** Kurumsal cihazlarda veya kısıtlı profillerde, Claude Desktop'ın `%APPDATA%` dizinine erişim yetkisi olduğundan emin olun.
 
 ## Kullanım Örneği
 
