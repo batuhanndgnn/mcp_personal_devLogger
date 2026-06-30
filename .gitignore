@@ -1,0 +1,10 @@
+# Veritabanı dosyası (Kişisel verilerimiz)
+notes.db
+
+# Python geçici dosyaları
+__pycache__/
+*.pyc
+
+# Varsa env klasörün
+venv/
+.env

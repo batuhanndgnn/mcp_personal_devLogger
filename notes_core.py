@@ -1,33 +1,39 @@
 """
 notes_core.py
 İş mantığının kendisi: not ekleme, arama, son kayıtları listeleme.
-Bu fonksiyonlar Faz 2'de MCP server tarafından doğrudan çağrılacak,
-şu an için sadece CLI'dan test ediyoruz.
+Bu fonksiyonlar Faz 2'de MCP server tarafından doğrudan çağrılacak.
 """
-
+import re
 from datetime import datetime, timezone
 from db import get_connection, init_db
 
+def _clean_tags(tags: str) -> str:
+    """Etiketlerdeki fazla boşlukları temizler ve virgülle ayırır."""
+    if not tags:
+        return ""
+    return ",".join([t.strip() for t in tags.split(",") if t.strip()])
+
 def log_note(content: str, tags: str = "") -> dict:
     """Yeni bir not ekler, eklenen kaydı döner."""
-    # DÜZELTME: Boş içerik kontrolü eklendi
     if not content or not content.strip():
         raise ValueError("Not içeriği boş olamaz.")
+    
+    cleaned_tags = _clean_tags(tags)
     
     conn = get_connection()
     cur = conn.cursor()
     created_at = datetime.now(timezone.utc).isoformat()
     cur.execute(
         "INSERT INTO notes (content, tags, created_at) VALUES (?, ?, ?)",
-        (content.strip(), tags, created_at),
+        (content.strip(), cleaned_tags, created_at),
     )
     conn.commit()
     new_id = cur.lastrowid
     conn.close()
-    return {"id": new_id, "content": content.strip(), "tags": tags, "created_at": created_at}
+    return {"id": new_id, "content": content.strip(), "tags": cleaned_tags, "created_at": created_at}
 
-# YENİ EK: Silme fonksiyonu
 def delete_note(note_id: int) -> bool:
+    """Belirtilen ID'li notu siler."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM notes WHERE id = ?", (note_id,))
@@ -36,13 +42,28 @@ def delete_note(note_id: int) -> bool:
     conn.close()
     return success
 
-# YENİ EK: Güncelleme fonksiyonu
-def update_note(note_id: int, content: str) -> bool:
+def update_note(note_id: int, content: str, tags: str = None) -> bool:
+    """Belirtilen ID'li notun içeriğini ve opsiyonel olarak etiketlerini günceller."""
     if not content or not content.strip():
         raise ValueError("Not içeriği boş olamaz.")
+        
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("UPDATE notes SET content = ? WHERE id = ?", (content.strip(), note_id))
+    
+    # Eğer etiketler de gönderildiyse temizleyerek güncelle (Madde 3)
+    if tags is not None:
+        cleaned_tags = _clean_tags(tags)
+        cur.execute(
+            "UPDATE notes SET content = ?, tags = ? WHERE id = ?", 
+            (content.strip(), cleaned_tags, note_id)
+        )
+    else:
+        # Sadece içeriği güncelle
+        cur.execute(
+            "UPDATE notes SET content = ? WHERE id = ?", 
+            (content.strip(), note_id)
+        )
+        
     conn.commit()
     success = cur.rowcount > 0
     conn.close()
@@ -50,10 +71,20 @@ def update_note(note_id: int, content: str) -> bool:
 
 def search_notes(query: str, limit: int = 5) -> list[dict]:
     """FTS5 ile arama yapar, en alakalı sonuçları döner."""
+    if not query or not query.strip():
+        return []
+        
     conn = get_connection()
     cur = conn.cursor()
-    # DÜZELTME: Tırnak işareti hatasını önlemek için temizlik
-    safe_query = f'"{query.replace("\"", "")}"'
+    
+    # Sadece alfanumerik karakterleri ve boşluğu bırakıp FTS5'i bozacak karakterleri temizliyoruz
+    cleaned_query = re.sub(r'[^\w\s]', '', query)
+    if not cleaned_query.strip():
+        conn.close()
+        return []
+        
+    search_term = f"{cleaned_query.strip()}*"
+    
     cur.execute(
         """
         SELECT notes.id, notes.content, notes.tags, notes.created_at
@@ -63,7 +94,7 @@ def search_notes(query: str, limit: int = 5) -> list[dict]:
         ORDER BY rank
         LIMIT ?
         """,
-        (safe_query, limit),
+        (search_term, limit),
     )
     rows = cur.fetchall()
     conn.close()
@@ -92,7 +123,7 @@ if __name__ == "__main__":
         print("  python notes_core.py search '<arama kelimesi>'")
         print("  python notes_core.py recent [limit]")
         print("  python notes_core.py delete <id>")
-        print("  python notes_core.py update <id> '<yeni metin>'")
+        print("  python notes_core.py update <id> '<yeni metin>' [yeni etiketler]")
         sys.exit(0)
 
     command = sys.argv[1]
@@ -125,9 +156,14 @@ if __name__ == "__main__":
             print("Not bulunamadı.")
             
     elif command == "update":
+        if len(sys.argv) < 4:
+            print("Kullanım:  python notes_core.py update <id> '<yeni metin>' [yeni etiketler]")
+            sys.exit(1)
         note_id = int(sys.argv[2])
         content = sys.argv[3]
-        if update_note(note_id, content):
+        tags = sys.argv[4] if len(sys.argv) > 4 else ""
+        
+        if update_note(note_id, content, tags):
             print(f"ID {note_id} güncellendi.")
         else:
             print("Not bulunamadı.")

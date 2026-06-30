@@ -19,6 +19,8 @@ Olabildiğince basit ve dışa bağımlılıksız tutmaya çalıştım:
 * `log_note(content, tags)`: Veritabanına yeni bir hata/çözüm notu ve etiketlerini ekler.
 * `search_notes(query)`: Geçmiş notlar içinde arama yapar.
 * `get_recent_notes(limit)`: En son eklenen notları getirir.
+* `update_note(note_id, content, tags)`: Belirtilen ID'li notun içeriğini ve opsiyonel olarak etiketlerini günceller.
+* `delete_note(note_id)`: Belirtilen ID'li notu siler.
 
 ## Kurulum
 
@@ -68,3 +70,5 @@ Kurulum bitince Claude Desktop'ta normal sohbet eder gibi kullanabilirsiniz:
 
 * "Şunu kaydet: Whatsapp botunda session çökme sorununu wwebjs_auth klasörünü silerek çözdüm. Etiketler: nodejs, whatsapp"
 * "Ollama ile ilgili aldığım notlara bir baksana ne yazmışım"
+* "5 numaralı notu sil"
+* "3 numaralı notun etiketlerini güncelle"

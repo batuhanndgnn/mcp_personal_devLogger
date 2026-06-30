@@ -1,19 +1,24 @@
 """
 db.py
 Veritabanı bağlantısı ve şema kurulumu.
-Bu modül, hem Faz 1'deki CLI test scripti hem de Faz 2'deki MCP server
-tarafından ortak olarak kullanılacak.
 """
 
 import sqlite3
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
-DB_PATH = Path(__file__).parent / "notes.db"
+# .env dosyasını yüklüyoruz
+load_dotenv()
+
+# Veritabanı yolunu .env dosyasından okuyoruz, yoksa varsayılan olarak notes.db alıyoruz
+db_name = os.getenv("DB_PATH", "notes.db")
+DB_PATH = Path(__file__).parent / db_name
 
 
 def get_connection() -> sqlite3.Connection:
-    """Veritabanı bağlantısını döner, yoksa dosyayı oluşturur."""
-    conn = sqlite3.connect(DB_PATH)
+    """Veritabanı bağlantısını döner, kilitlenmeye karşı timeout=10 eklenmiştir."""
+    conn = sqlite3.connect(DB_PATH, timeout=10)
     conn.row_factory = sqlite3.Row
     return conn
 
