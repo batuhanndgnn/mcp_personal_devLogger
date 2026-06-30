@@ -35,6 +35,7 @@ python -m venv venv
 ```
 
 *(Not: Windows'ta yetki hatası alırsanız PowerShell'i yönetici açıp `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process` yazabilirsiniz)*
+*(Not: .env dosyasına DB_PATH=yol/veritabani.db ekleyerek veritabanı dosyanızın konumunu değiştirebilirsiniz.)*
 
 ### 2. Kütüphaneleri Yükleme
 

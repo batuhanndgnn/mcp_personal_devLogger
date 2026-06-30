@@ -161,7 +161,7 @@ if __name__ == "__main__":
             sys.exit(1)
         note_id = int(sys.argv[2])
         content = sys.argv[3]
-        tags = sys.argv[4] if len(sys.argv) > 4 else ""
+        tags = sys.argv[4] if len(sys.argv) > 4 else None
         
         if update_note(note_id, content, tags):
             print(f"ID {note_id} güncellendi.")
