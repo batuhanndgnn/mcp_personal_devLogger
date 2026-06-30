@@ -1,3 +1,6 @@
+Tamamdır, README dosyanı konuştuğumuz eksikleri (gereksiz veritabanı adımı, venv yolu, requirements.txt mantığı) giderecek şekilde baştan aşağı düzenledim. Doğrudan kopyalayıp kendi `README.md` dosyanın içine yapıştırabilirsin:
+
+```markdown
 # MCP Personal Dev Logger
 
 Claude Desktop için geliştirilmiş, Model Context Protocol (MCP) tabanlı yerel bir geliştirici günlüğü ve hata takip sunucusu.
@@ -12,7 +15,7 @@ Bu proje, yerel bilgisayarınızda çalışan bir SQLite veritabanını Anthropi
 
 Proje, gereksiz karmaşıklıktan ve dış bağımlılıklardan kaçınılarak sade bir yapıda tasarlanmıştır:
 
-* **Sıfır Kurulumlu Veritabanı:** Arama işlemleri için karmaşık vektör veritabanları yerine SQLite'ın yerleşik FTS5 (Full-Text Search) eklentisi kullanılmıştır. Bu sayede sistem, ekstra bir altyapı gerektirmeden hızlı metin tabanlı aramalar yapabilir.
+* **Sıfır Kurulumlu Veritabanı:** Sunucu ayağa kalktığında veritabanı şemasını otonom olarak hazırlar. Arama işlemleri için karmaşık vektör veritabanları yerine SQLite'ın yerleşik FTS5 (Full-Text Search) eklentisi kullanılmıştır.
 * **Tamamen Yerel İletişim:** Sunucu, standart girdi/çıktı (stdio) üzerinden Claude ile haberleşir. Ağ yapılandırması veya port ayarı gerektirmez; verileriniz bilgisayarınızdan dışarı çıkmaz.
 * **Doğrudan Orkestrasyon:** LangChain gibi ek çerçeveler kullanılmamıştır. İstek analizi ve araç seçimi, Claude'un kendi otonom döngüsüne (ReAct) bırakılmıştır.
 
@@ -44,25 +47,14 @@ source venv/bin/activate
 
 ### 2. Gereksinimleri Yükleyin
 
-Projenin tek dış bağımlılığı resmi Anthropic MCP SDK'sıdır:
+Projenin bağımlılıklarını kurmak için ana dizindeki `requirements.txt` dosyasını kullanın:
 
 ```bash
-pip install mcp
+pip install -r requirements.txt
 
 ```
 
-### 3. Veritabanını Hazırlayın
-
-Veritabanı dosyasını ve tabloları oluşturmak için başlatma betiğini çalıştırın:
-
-```bash
-python db.py
-
-```
-
-*Not: Bu komutu çalıştırmadan önce `db.py` dosyasının bulunduğunuz dizinde olduğunu doğrulayın.*
-
-### 4. Claude Desktop Ayarları
+### 3. Claude Desktop Ayarları
 
 Claude'un bu sunucuyla iletişim kurabilmesi için `claude_desktop_config.json` dosyanızı yapılandırın:
 
@@ -76,7 +68,7 @@ Claude'un bu sunucuyla iletişim kurabilmesi için `claude_desktop_config.json` 
 {
   "mcpServers": {
     "my-dev-logger": {
-      "command": "python",
+      "command": "C:\\tam\\yol\\venv\\Scripts\\python.exe",
       "args": ["C:\\tam\\yol\\server.py"]
     }
   }
@@ -84,14 +76,13 @@ Claude'un bu sunucuyla iletişim kurabilmesi için `claude_desktop_config.json` 
 
 ```
 
-*Önemli: `C:\\tam\\yol\\server.py` kısmını kendi bilgisayarınızdaki dosya yolu ile güncelleyin. Konfigürasyondan sonra Claude Desktop'ı tamamen kapatıp yeniden başlatın.*
+*Önemli: `command` kısmına mutlaka projede oluşturduğunuz sanal ortamın (`venv`) içindeki `python.exe` yolunu vermelisiniz. Sisteminizdeki global `python` komutunu kullanmak uygulamanın çökmesine neden olabilir. `args` kısmına ise `server.py` dosyasının tam yolunu yazın. Konfigürasyondan sonra Claude Desktop'ı tamamen kapatıp yeniden başlatın.*
 
 ## ⚠️ Gelişmiş Sorun Giderme
 
-* **Sunucu Başlatılamıyor (Kırmızı İkon):** Claude Desktop, `python` komutunu sistem yolunda bulamıyor olabilir. `claude_desktop_config.json` içerisindeki `"command": "python"` satırını, bilgisayarınızdaki tam Python yoluyla (örn: `"command": "C:\\Users\\Kullanici\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"`) değiştirmeyi deneyin.
+* **Sunucu Başlatılamıyor (Kırmızı İkon):** Claude Desktop, sanal ortamdaki `python.exe` dosyasını bulamıyor olabilir. Yolların doğru olduğundan ve çift ters eğik çizgi (`\\`) ile yazıldığından emin olun.
 * **JSON Yapısal Hataları:** Konfigürasyon dosyasında eksik parantez veya fazladan virgül bulunması Claude'un dosyayı tamamen yok saymasına neden olur. JSON formatınızı kontrol ettiğinizden emin olun.
 * **Python Sürüm Uyumluluğu:** MCP SDK'sının kararlı çalışması için Python 3.10 veya daha yeni bir sürüm kullanmanız önerilir.
-* **Erişim Kısıtlamaları:** Kurumsal cihazlarda veya kısıtlı profillerde, Claude Desktop'ın `%APPDATA%` dizinine erişim yetkisi olduğundan emin olun.
 
 ## Kullanım Örneği
 
@@ -99,3 +90,9 @@ Konfigürasyonu tamamladıktan sonra sohbet penceresinden asistanla iletişime g
 
 * **Not Ekleme:** "Şunu not al: PostgreSQL 5432 port çakışması hatasını, docker-compose.yml içindeki port eşleştirmesini 5433:5432 yaparak çözdüm. Etiketler: docker, postgres"
 * **Not Arama:** "Geçen ay aldığım Postgres port problemini nasıl çözmüştüm, veritabanımdan kontrol eder misin?"
+
+```
+
+Bunu kopyalayıp kaydettikten sonra hazır olduğunda ses et, kod tarafındaki ("motor") değişiklikler için nereye el atacağımızı sen söyle.
+
+```
