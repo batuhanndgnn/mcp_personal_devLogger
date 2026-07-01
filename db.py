@@ -82,4 +82,3 @@ def init_db() -> None:
 
 if __name__ == "__main__":
     init_db()
-    print(f"Veritabanı hazır: {DB_PATH}")

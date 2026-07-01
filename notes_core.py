@@ -118,12 +118,6 @@ if __name__ == "__main__":
     init_db()
 
     if len(sys.argv) < 2:
-        print("Kullanım:")
-        print("  python notes_core.py add '<not metni>' [etiket1,etiket2]")
-        print("  python notes_core.py search '<arama kelimesi>'")
-        print("  python notes_core.py recent [limit]")
-        print("  python notes_core.py delete <id>")
-        print("  python notes_core.py update <id> '<yeni metin>' [yeni etiketler]")
         sys.exit(0)
 
     command = sys.argv[1]

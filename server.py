@@ -4,13 +4,18 @@ notes_core.py'deki fonksiyonları MCP tool'larına çeviren server.
 Claude Desktop bu dosyayı stdio üzerinden çalıştırarak tool'lara erişir.
 """
 
+import sys
+# Claude'un yuttuğu tüm hataları zorla masaüstüne yazdırıyoruz
+sys.stderr = open("C:\\Users\\bdogan\\Desktop\\mcp_gercek_hata.txt", "w", encoding="utf-8")
 import logging
 import sys
+import os
 from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 import notes_core
 from db import init_db
 
+os.chdir(Path(__file__).parent)
 
 # Kurumsal Loglama Ayarları
 log_path = Path(__file__).parent / "server.log"
