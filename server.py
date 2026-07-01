@@ -5,6 +5,7 @@ Claude Desktop bu dosyayı stdio üzerinden çalıştırarak tool'lara erişir.
 """
 
 import logging
+import sys
 from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 import notes_core
@@ -19,12 +20,17 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-# Server başlarken veritabanının hazır olduğundan emin oluyoruz
+# Server başlarken veritabanının hazır olduğundan emin oluyoruz.
+# Kritik: init_db() başarısız olursa server'ı SESSİZCE ayakta tutmuyoruz.
+# Aksi halde Claude Desktop/Cursor "bağlandı" gösterir ama her tool çağrısı
+# anlaşılmaz şekilde hata döner ve kullanıcı gerçek sebebi asla göremez.
 try:
     init_db()
     logging.info("Veritabanı bağlantısı başarılı ve şema hazır.")
 except Exception as e:
     logging.critical(f"Veritabanı başlatılamadı: {str(e)}")
+    print(f"KRİTİK HATA: Veritabanı başlatılamadı: {e}", file=sys.stderr)
+    sys.exit(1)
 
 mcp = FastMCP("personal-notes")
 
@@ -96,7 +102,7 @@ def get_recent_notes(limit: int = 10) -> str:
         results = notes_core.get_recent_notes(limit)
         if not results:
             return "Henüz hiç not kaydedilmemiş."
-            
+
         logging.info(f"Son {len(results)} not listelendi.")
         lines = [f"En son eklenen {len(results)} not:"]
         for r in results:
@@ -105,3 +111,7 @@ def get_recent_notes(limit: int = 10) -> str:
     except Exception as e:
         logging.error(f"Son notları getirme işlemi başarısız: {str(e)}")
         return f"Hata: {str(e)}"
+
+# SUNUCUYU BAŞLATAN KRİTİK SATIR:
+if __name__ == "__main__":
+    mcp.run()
