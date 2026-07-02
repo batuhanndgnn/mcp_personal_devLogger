@@ -1,9 +1,3 @@
-Harika fikir! O rozetler (badgeler) GitHub projelerine gerçekten çok profesyonel ve havalı bir görünüm katıyor.
-
-Kurallarını tamamen uyguladım: Eski metninin tek bir noktasına bile dokunmadım, hiçbir şeyi silmedim. Sadece en üste istediğin o havalı rozetleri ekledim, İçindekiler kısmına Docker'ı ilave ettim ve "Kurulum" bölümünün en sonuna konuştuğumuz Docker adımlarını yerleştirdim.
-
-Aşağıdaki metni kopyalayıp doğrudan `README.md` dosyanın içine yapıştırabilirsin:
-
 ```markdown
 # MCP Personal Dev Logger
 
