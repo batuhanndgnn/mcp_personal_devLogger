@@ -8,10 +8,10 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# .env dosyasını yüklüyoruz
+
 load_dotenv()
 
-# Veritabanı yolunu .env dosyasından okuyoruz, yoksa varsayılan olarak notes.db alıyoruz
+
 db_name = os.getenv("DB_PATH", "notes.db")
 DB_PATH = Path(__file__).parent / db_name
 
@@ -50,7 +50,7 @@ def init_db() -> None:
         """
     )
 
-    # notes tablosuna ekleme/güncelleme/silme oldukça notes_fts'i senkron tutan triggerlar
+    
     cur.execute(
         """
         CREATE TRIGGER IF NOT EXISTS notes_ai AFTER INSERT ON notes BEGIN
