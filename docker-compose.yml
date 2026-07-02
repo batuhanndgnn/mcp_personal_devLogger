@@ -1,0 +1,4 @@
+services:
+  devlogger-app:
+    build: .
+    container_name: mcp_devlogger_container

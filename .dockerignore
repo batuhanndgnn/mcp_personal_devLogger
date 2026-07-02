@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.db
+*.log
+debug_output.txt
+.env
